@@ -15,7 +15,8 @@ struct Process {
     int waitingTime;        
     int turnaroundTime;     
     int responseTime;       
-    bool isCompleted;       
+    bool isCompleted;
+    int niceLevel;
 };
 
 // Performs a bubble sort on the processes vector. 
@@ -312,6 +313,52 @@ void srtf(vector<Process> procs, int testCaseNum) {
     cout << "Average response time: " << totalResponse / n << "ns" << endl;
 }
 
+// --- P ALGORITHM ---
+void p(vector<Process> procs, int testCaseNum) {
+
+    
+    // Output 
+    cout << "Total time elapsed: " << currentTime << "ns" << endl;
+    
+    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
+    int totalBurst = 0;
+    
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (procs[j].id > procs[j+1].id) {
+                Process temp = procs[j];
+                procs[j] = procs[j+1];
+                procs[j+1] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        totalWait = totalWait + procs[i].waitingTime;
+        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
+        totalResponse = totalResponse + procs[i].responseTime;
+        totalBurst = totalBurst + procs[i].burstTime;
+    }
+    
+    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
+    double utilization = ((double)totalBurst / currentTime) * 100.0;
+    cout << "CPU Utilization: " << utilization << "%" << endl;
+    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
+
+    cout << "Waiting times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
+    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
+
+    cout << "Turnaround times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
+    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
+
+    cout << "Response times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
+    cout << "Average response time: " << totalResponse / n << "ns" << endl;
+}
+
+
 int main() {
     int testCases;
     
@@ -335,6 +382,8 @@ int main() {
             p.remainingTime = burst; 
             p.startTime = -1;        
             p.isCompleted = false;
+
+            p.niceLevel = priority;
             
             processes.push_back(p);
         }
