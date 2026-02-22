@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -356,7 +357,7 @@ void p(vector<Process> procs, int testCaseNum) {
         // Context switch check
         if (highestPriorityIdx != -1) {
              // context switch: flush previous block (non-X)
-            if (lastProccessId != -1 && procs[highestPriorityIdx].id != lastProcessId) {
+            if (lastProcessId != -1 && procs[highestPriorityIdx].id != lastProcessId) {
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                 startBlockTime = currentTime;
                 currentBurst = 0;
@@ -445,6 +446,9 @@ void p(vector<Process> procs, int testCaseNum) {
     cout << "Average response time: " << totalResponse / n << "ns" << endl;
 }
 
+void rr(vector<Process> procs, int testCaseNum, int quantum) {
+    
+}
 
 int main() {
     int testCases;
