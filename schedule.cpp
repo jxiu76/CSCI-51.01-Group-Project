@@ -331,7 +331,7 @@ void p(vector<Process> procs, int testCaseNum) {
 
         // Find the process with the highest priority (lowest nice level) in the ready queue
         for (int i = 0; i < n; i++) {
-            if (procs[i].arrivalTime <= curretTime && !procs[i].isCompleted) {
+            if (procs[i].arrivalTime <= currentTime && !procs[i].isCompleted) {
                 if (highestPriorityIdx == -1) {
                     highestPriorityIdx = i;
                 } else {
