@@ -352,9 +352,58 @@ void p(vector<Process> procs, int testCaseNum) {
                 }
             }
         }
+
+        // Context switch check
+        if (highestPriorityIdx != -1) {
+             // context switch: flush previous block (non-X)
+            if (lastProccessId != -1 && procs[highestPriorityIdx].id != lastProcessId) {
+                cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
+                startBlockTime = currentTime;
+                currentBurst = 0;
+            }
+
+            lastProcessId = procs[highestPriorityIdx].id;
+
+            if (procs[highestPriorityIdx].startTime == -1 ) {
+                procs[highestPriorityIdx].startTime = currentTime;
+            }
+
+            // runs 1ns
+            procs[highestPriorityIdx].remainingTime--;
+            currentBurst++;
+            currentTime++;
+
+            // 
+            if (procs[highestPriorityIdx].remainingTime == 0) {
+                procs[highestPriorityIdx].finishTime = currentTime;
+                procs[highestPriorityIdx].isCompleted = true;
+                completedCount++;
+
+                cout << startBlockTime << " " << procs[highestPriorityIdx].id << " " << currentBurst << "X" << endl;
+
+                procs[highestPriorityIdx].turnaroundTime = procs[highestPriorityIdx].finishTime - procs[highestPriorityIdx].arrivalTime;
+                procs[highestPriorityIdx].waitingTime = procs[highestPriorityIdx].turnaroundTime - procs[highestPriorityIdx].burstTime;
+                procs[highestPriorityIdx].responseTime = procs[highestPriorityIdx].startTime - procs[highestPriorityIdx].arrivalTime;
+
+                lastProcessId = -1; 
+                startBlockTime = currentTime;
+                currentBurst = 0;               
+            }
+        } else {
+            if (lastProcessId != -1) {
+                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
+                 lastProcessId = -1;
+                 currentBurst = 0;
+            }
+            
+            currentTime++;
+            if (currentBurst == 0) {
+                startBlockTime = currentTime;
+            }            
+        }
+    
     }
 
-    
     // Output 
     cout << "Total time elapsed: " << currentTime << "ns" << endl;
     
@@ -434,6 +483,9 @@ int main() {
         }
         else if (algorithm == "SRTF") {
             srtf(processes, t);
+        }
+        else if (algorithm == "P") {
+            p(processes, t);
         }
     }
     return 0;
