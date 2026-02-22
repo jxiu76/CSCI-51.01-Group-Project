@@ -315,6 +315,44 @@ void srtf(vector<Process> procs, int testCaseNum) {
 
 // --- P ALGORITHM ---
 void p(vector<Process> procs, int testCaseNum) {
+    sortProcesses(procs);
+    cout << testCaseNum << " P " << endl;
+
+    int currentTime = 0;
+    int completedCount = 0;
+    int n = procs.size();
+
+    int lastProcessId = -1;
+    int startBlockTime = 0;
+    int currentBurst = 0;
+
+    while (completedCount < n) {
+        int highestPriorityIdx = -1;
+
+        // Find the process with the highest priority (lowest nice level) in the ready queue
+        for (int i = 0; i < n; i++) {
+            if (procs[i].arrivalTime <= curretTime && !procs[i].isCompleted) {
+                if (highestPriorityIdx == -1) {
+                    highestPriorityIdx = i;
+                } else {
+                    // Lower nice level, higher priority
+                    if (procs[i].niceLevel < procs[highestPriorityIdx].niceLevel) {
+                        highestPriorityIdx = i;
+                    // Tie-break 1: Earlier arrival time, higher priority
+                    } else if (procs[i].niceLevel == procs[highestPriorityIdx].niceLevel) {
+                        if (procs[i].arrivalTime < procs[highestPriorityIdx].arrivalTime) {
+                            highestPriorityIdx = i;
+                        // Tie-break 2: Lower process index, higher priority 
+                        } else if (procs[i].arrivalTime == procs[highestPriorityIdx].arrivalTime) {
+                            if (procs[i].id < procs[highestPriorityIdx].id) {
+                                highestPriorityIdx = i;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     
     // Output 
