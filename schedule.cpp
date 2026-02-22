@@ -480,9 +480,48 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
                 procs[currentidx].startTime = currentTime;
             }
 
-            
-        }
+            // Processes can only run for their time slice
+            int runTime = min(procs[currentIdx].remainingTime, quantum);
+            int startBlockTime = currentTime;
 
+            currentTime += runTime;
+
+            // Thhis prints the execution block
+            cout << startBlockTime << " " << procs[currentIdx].id << " " runTime;
+
+            // Check if the process is finished
+            if (procs[currentIdx].remainingTime == 0) {
+                cout << "X" << endl;
+                procs[currentIdx].finishTime = currentTime;
+                procs[currentIdx].isCompleted = true;
+                completedCount++;
+
+                procs[currentIdx].turnaroundTime = procs[currentIdx].finishTime - procs[currentIdx].arrivalTime;
+                procs[currentIdx].waitingTime = procs[currentIdx].turnaroundTime - procs[currentIdx].burstTime;
+                procs[currentIdx].responseTime = procs[currentIdx].startTime - procs[currentIdx].arrivalTime;
+            } else {
+                cout << endl;
+                // If the process didn't finish, it gets preempted
+                // Move it to the tail end of the queue
+                preemptedQueue.push(currentIdx);
+            }
+        } else {
+            // If the CPU is in idle, we need to advance time to the next process
+            int nextArrival = -1;
+            for (int i = 0; i < n; i++) {
+                if (!procs[i].isCompleted && procs[i].arrivalTime > currentTime) {
+                    if (nextArrival == -1 || procs[i].arrivalTime < nextArrival) {
+                        nextArrival = procs[i].arrivalTime;
+                    }
+                }
+            }
+            
+            if (nextArrival != -1) {
+                currentTime = nextArrival;
+            } else {
+                currentTime++;
+            }
+        }
     }
 
     // Output 
