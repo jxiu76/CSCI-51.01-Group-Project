@@ -464,6 +464,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
         for (int i = 0; i < n; i++) {
             if (procs[i].arrivalTime <= currentTime && !procs[i].isCompleted && procs[i].startTime == -1) {
                 currentIdx = i;
+                break; // Since procs is sorted, this guarantees the earliest arrival
             }
         }
 
@@ -477,7 +478,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
         if (currentIdx != -1) {
             // Record the start time
             if (procs[currentIdx].startTime == -1) {
-                procs[currentidx].startTime = currentTime;
+                procs[currentIdx].startTime = currentTime;
             }
 
             // Processes can only run for their time slice
@@ -485,16 +486,17 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
             int startBlockTime = currentTime;
 
             currentTime += runTime;
+            procs[currentIdx].remainingTime -= runTime;
 
             // Thhis prints the execution block
-            cout << startBlockTime << " " << procs[currentIdx].id << " " runTime;
+            cout << startBlockTime << " " << procs[currentIdx].id << " " << runTime;
 
             // Check if the process is finished
             if (procs[currentIdx].remainingTime == 0) {
                 cout << "X" << endl;
                 procs[currentIdx].finishTime = currentTime;
                 procs[currentIdx].isCompleted = true;
-                completedCount++;
+                completeCount++;
 
                 procs[currentIdx].turnaroundTime = procs[currentIdx].finishTime - procs[currentIdx].arrivalTime;
                 procs[currentIdx].waitingTime = procs[currentIdx].turnaroundTime - procs[currentIdx].burstTime;
@@ -573,7 +575,12 @@ int main() {
     for (int t = 1; t <= testCases; t++) {
         int numProcesses;
         string algorithm;
+        int quantum = 0;
         cin >> numProcesses >> algorithm;
+
+        if (algorithm == "RR") {
+            cin >> quantum;
+        }
 
         vector<Process> processes;
         for (int i = 0; i < numProcesses; i++) {
@@ -605,6 +612,9 @@ int main() {
         }
         else if (algorithm == "P") {
             p(processes, t);
+        } 
+        else if (algorithm == "RR") {
+            rr(processes, t, quantum);
         }
     }
     return 0;
