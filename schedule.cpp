@@ -356,7 +356,7 @@ void p(vector<Process> procs, int testCaseNum) {
 
         // Context switch check
         if (highestPriorityIdx != -1) {
-             // context switch: flush previous block (non-X)
+             // Context switch
             if (lastProcessId != -1 && procs[highestPriorityIdx].id != lastProcessId) {
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                 startBlockTime = currentTime;
@@ -369,12 +369,12 @@ void p(vector<Process> procs, int testCaseNum) {
                 procs[highestPriorityIdx].startTime = currentTime;
             }
 
-            // runs 1ns
+            // Runs 1ns
             procs[highestPriorityIdx].remainingTime--;
             currentBurst++;
             currentTime++;
 
-            // 
+            // Completing the process
             if (procs[highestPriorityIdx].remainingTime == 0) {
                 procs[highestPriorityIdx].finishTime = currentTime;
                 procs[highestPriorityIdx].isCompleted = true;
@@ -447,7 +447,83 @@ void p(vector<Process> procs, int testCaseNum) {
 }
 
 void rr(vector<Process> procs, int testCaseNum, int quantum) {
+    sortProcesses(procs);
+    cout << testCaseNum << " RR" << endl;
+
+    int currentTime = 0;
+    int completeCount = 0;
+    int n = procs.size();
+
+    // Queueing exclusively the preempted processes
+    queue<int> preemptedQueue;
+
+    while (completeCount < n) {
+        int currentIdx = -1;
+
+        // Priority 1: Check for new arrivals
+        for (int i = 0; i < n; i++) {
+            if (procs[i].arrivalTime <= currentTime && !procs[i].isCompleted && procs[i].startTime == -1) {
+                currentIdx = i;
+            }
+        }
+
+        // Priority 2: If there is no new arrivals, proceed to preempted queue
+        if (currentIdx == -1 && !preemptedQueue.empty()) {
+            currentIdx = preemptedQueue.front();
+            preemptedQueue.pop();
+        }
+
+        // Run the process once it is found
+        if (currentIdx != -1) {
+            // Record the start time
+            if (procs[currentIdx].startTime == -1) {
+                procs[currentidx].startTime = currentTime;
+            }
+
+            
+        }
+
+    }
+
+    // Output 
+    cout << "Total time elapsed: " << currentTime << "ns" << endl;
     
+    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
+    int totalBurst = 0;
+    
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (procs[j].id > procs[j+1].id) {
+                Process temp = procs[j];
+                procs[j] = procs[j+1];
+                procs[j+1] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        totalWait = totalWait + procs[i].waitingTime;
+        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
+        totalResponse = totalResponse + procs[i].responseTime;
+        totalBurst = totalBurst + procs[i].burstTime;
+    }
+    
+    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
+    double utilization = ((double)totalBurst / currentTime) * 100.0;
+    cout << "CPU Utilization: " << utilization << "%" << endl;
+    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
+
+    cout << "Waiting times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
+    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
+
+    cout << "Turnaround times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
+    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
+
+    cout << "Response times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
+    cout << "Average response time: " << totalResponse / n << "ns" << endl;
 }
 
 int main() {
