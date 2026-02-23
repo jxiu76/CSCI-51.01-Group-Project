@@ -48,6 +48,51 @@ void sortProcesses(vector<Process> &procs) {
     }
 }
 
+void printOutput(vector<Process> procs, int currentTime) {
+    int n = procs.size();
+
+    // Output 
+    cout << "Total time elapsed: " << currentTime << "ns" << endl;
+    
+    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
+    int totalBurst = 0;
+    
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (procs[j].id > procs[j+1].id) {
+                Process temp = procs[j];
+                procs[j] = procs[j+1];
+                procs[j+1] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        totalWait = totalWait + procs[i].waitingTime;
+        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
+        totalResponse = totalResponse + procs[i].responseTime;
+        totalBurst = totalBurst + procs[i].burstTime;
+    }
+    
+    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
+    double utilization = ((double)totalBurst / currentTime) * 100.0;
+    cout << "CPU Utilization: " << utilization << "%" << endl;
+    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
+
+    cout << "Waiting times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
+    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
+
+    cout << "Turnaround times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
+    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
+
+    cout << "Response times:" << endl;
+    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
+    cout << "Average response time: " << totalResponse / n << "ns" << endl;
+
+}
+
 void fcfs(vector<Process> procs, int testCaseNum) {
     sortProcesses(procs);
     cout << testCaseNum << " FCFS" << endl;
@@ -69,34 +114,7 @@ void fcfs(vector<Process> procs, int testCaseNum) {
         procs[i].responseTime = procs[i].startTime - procs[i].arrivalTime;
     }
     
-    cout << "Total time elapsed: " << currentTime << "ns" << endl;
-    
-    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
-    int totalBurst = 0;
-    
-    for (int i = 0; i < procs.size(); i++) {
-        totalWait = totalWait + procs[i].waitingTime;
-        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
-        totalResponse = totalResponse + procs[i].responseTime;
-        totalBurst = totalBurst + procs[i].burstTime;
-    }
-    
-    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
-    double utilization = ((double)totalBurst / currentTime) * 100.0;
-    cout << "CPU Utilization: " << utilization << "%" << endl;
-    cout << "Throughput: " << (double)procs.size() / currentTime << " processes/ns" << endl;
-
-    cout << "Waiting times:" << endl;
-    for (int i = 0; i < procs.size(); i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
-    cout << "Average waiting time: " << totalWait / procs.size() << "ns" << endl;
-
-    cout << "Turnaround times:" << endl;
-    for (int i = 0; i < procs.size(); i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
-    cout << "Average turnaround time: " << totalTurnaround / procs.size() << "ns" << endl;
-
-    cout << "Response times:" << endl;
-    for (int i = 0; i < procs.size(); i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
-    cout << "Average response time: " << totalResponse / procs.size() << "ns" << endl;
+    printOutput(procs, currentTime);
 }
 
 void sjf(vector<Process> procs, int testCaseNum) {
@@ -150,44 +168,7 @@ void sjf(vector<Process> procs, int testCaseNum) {
         }
     }
     
-    cout << "Total time elapsed: " << currentTime << "ns" << endl;
-    
-    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
-    int totalBurst = 0;
-    
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (procs[j].id > procs[j+1].id) {
-                Process temp = procs[j];
-                procs[j] = procs[j+1];
-                procs[j+1] = temp;
-            }
-        }
-    }
-
-    for (int i = 0; i < n; i++) {
-        totalWait = totalWait + procs[i].waitingTime;
-        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
-        totalResponse = totalResponse + procs[i].responseTime;
-        totalBurst = totalBurst + procs[i].burstTime;
-    }
-    
-    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
-    double utilization = ((double)totalBurst / currentTime) * 100.0;
-    cout << "CPU Utilization: " << utilization << "%" << endl;
-    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
-
-    cout << "Waiting times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
-    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
-
-    cout << "Turnaround times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
-    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
-
-    cout << "Response times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
-    cout << "Average response time: " << totalResponse / n << "ns" << endl;
+   printOutput(procs, currentTime);
 }
 
 void srtf(vector<Process> procs, int testCaseNum) {
@@ -274,47 +255,10 @@ void srtf(vector<Process> procs, int testCaseNum) {
         }
     }
     
-    cout << "Total time elapsed: " << currentTime << "ns" << endl;
-    
-    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
-    int totalBurst = 0;
-    
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (procs[j].id > procs[j+1].id) {
-                Process temp = procs[j];
-                procs[j] = procs[j+1];
-                procs[j+1] = temp;
-            }
-        }
-    }
-
-    for (int i = 0; i < n; i++) {
-        totalWait = totalWait + procs[i].waitingTime;
-        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
-        totalResponse = totalResponse + procs[i].responseTime;
-        totalBurst = totalBurst + procs[i].burstTime;
-    }
-    
-    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
-    double utilization = ((double)totalBurst / currentTime) * 100.0;
-    cout << "CPU Utilization: " << utilization << "%" << endl;
-    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
-
-    cout << "Waiting times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
-    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
-
-    cout << "Turnaround times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
-    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
-
-    cout << "Response times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
-    cout << "Average response time: " << totalResponse / n << "ns" << endl;
+    printOutput(procs, currentTime);
 }
 
-// --- P ALGORITHM ---
+// Priority
 void p(vector<Process> procs, int testCaseNum) {
     sortProcesses(procs);
     cout << testCaseNum << " P " << endl;
@@ -405,45 +349,7 @@ void p(vector<Process> procs, int testCaseNum) {
     
     }
 
-    // Output 
-    cout << "Total time elapsed: " << currentTime << "ns" << endl;
-    
-    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
-    int totalBurst = 0;
-    
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (procs[j].id > procs[j+1].id) {
-                Process temp = procs[j];
-                procs[j] = procs[j+1];
-                procs[j+1] = temp;
-            }
-        }
-    }
-
-    for (int i = 0; i < n; i++) {
-        totalWait = totalWait + procs[i].waitingTime;
-        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
-        totalResponse = totalResponse + procs[i].responseTime;
-        totalBurst = totalBurst + procs[i].burstTime;
-    }
-    
-    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
-    double utilization = ((double)totalBurst / currentTime) * 100.0;
-    cout << "CPU Utilization: " << utilization << "%" << endl;
-    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
-
-    cout << "Waiting times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
-    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
-
-    cout << "Turnaround times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
-    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
-
-    cout << "Response times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
-    cout << "Average response time: " << totalResponse / n << "ns" << endl;
+   printOutput(procs, currentTime);
 }
 
 void rr(vector<Process> procs, int testCaseNum, int quantum) {
@@ -526,45 +432,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
         }
     }
 
-    // Output 
-    cout << "Total time elapsed: " << currentTime << "ns" << endl;
-    
-    double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
-    int totalBurst = 0;
-    
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (procs[j].id > procs[j+1].id) {
-                Process temp = procs[j];
-                procs[j] = procs[j+1];
-                procs[j+1] = temp;
-            }
-        }
-    }
-
-    for (int i = 0; i < n; i++) {
-        totalWait = totalWait + procs[i].waitingTime;
-        totalTurnaround = totalTurnaround + procs[i].turnaroundTime;
-        totalResponse = totalResponse + procs[i].responseTime;
-        totalBurst = totalBurst + procs[i].burstTime;
-    }
-    
-    cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
-    double utilization = ((double)totalBurst / currentTime) * 100.0;
-    cout << "CPU Utilization: " << utilization << "%" << endl;
-    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
-
-    cout << "Waiting times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
-    cout << "Average waiting time: " << totalWait / n << "ns" << endl;
-
-    cout << "Turnaround times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].turnaroundTime << "ns" << endl;
-    cout << "Average turnaround time: " << totalTurnaround / n << "ns" << endl;
-
-    cout << "Response times:" << endl;
-    for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].responseTime << "ns" << endl;
-    cout << "Average response time: " << totalResponse / n << "ns" << endl;
+   printOutput(procs, currentTime);
 }
 
 int main() {
