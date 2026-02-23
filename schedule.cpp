@@ -1,3 +1,6 @@
+// MARCELINO, Jaren Paolo G.
+// PREDIGUA, 
+
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -75,9 +78,12 @@ void printOutput(vector<Process> procs, int currentTime) {
     }
     
     cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
-    double utilization = ((double)totalBurst / currentTime) * 100.0;
+
+    double utilization = (currentTime > 0) ? ((double)totalBurst / currentTime) * 100.0 : 0.0;
     cout << "CPU Utilization: " << utilization << "%" << endl;
-    cout << "Throughput: " << (double)n / currentTime << " processes/ns" << endl;
+
+    double throughput = (currentTime > 0) ? ((double)n / currentTime) : 0.0;
+    cout << "Throughput: " << throughput << " processes/ns" << endl;
 
     cout << "Waiting times:" << endl;
     for (int i = 0; i < n; i++) cout << " Process " << procs[i].id << ": " << procs[i].waitingTime << "ns" << endl;
@@ -164,7 +170,20 @@ void sjf(vector<Process> procs, int testCaseNum) {
             procs[shortestIdx].waitingTime = procs[shortestIdx].startTime - procs[shortestIdx].arrivalTime;
             procs[shortestIdx].responseTime = procs[shortestIdx].startTime - procs[shortestIdx].arrivalTime;
         } else {
-            currentTime++;
+            int nextArrival = -1;
+            for (int i = 0; i < n; i++) {
+                if (!procs[i].isCompleted && procs[i].arrivalTime > currentTime) {
+                    if (nextArrival == -1 || procs[i].arrivalTime < nextArrival) {
+                        nextArrival = procs[i].arrivalTime;
+                    }
+                }
+            }
+            
+            if (nextArrival != -1) {
+                currentTime = nextArrival;
+            } else {
+                currentTime++;
+            }
         }
     }
     
@@ -240,15 +259,29 @@ void srtf(vector<Process> procs, int testCaseNum) {
                 lastProcessId = -1; 
                 startBlockTime = currentTime;
                 currentBurst = 0;
-            }
-        } else {
+                }
+            } else {
             if (lastProcessId != -1) {
                  cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                  lastProcessId = -1;
                  currentBurst = 0;
             }
             
-            currentTime++;
+            int nextArrival = -1;
+            for (int i = 0; i < n; i++) {
+                if (!procs[i].isCompleted && procs[i].arrivalTime > currentTime) {
+                    if (nextArrival == -1 || procs[i].arrivalTime < nextArrival) {
+                        nextArrival = procs[i].arrivalTime;
+                    }
+                }
+            }
+            
+            if (nextArrival != -1) {
+                currentTime = nextArrival;
+            } else {
+                currentTime++;
+            }
+            
             if (currentBurst == 0) {
                 startBlockTime = currentTime;
             }
@@ -261,7 +294,7 @@ void srtf(vector<Process> procs, int testCaseNum) {
 // Priority
 void p(vector<Process> procs, int testCaseNum) {
     sortProcesses(procs);
-    cout << testCaseNum << " P " << endl;
+    cout << testCaseNum << " P" << endl;
 
     int currentTime = 0;
     int completedCount = 0;
@@ -336,17 +369,30 @@ void p(vector<Process> procs, int testCaseNum) {
             }
         } else {
             if (lastProcessId != -1) {
-                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
-                 lastProcessId = -1;
-                 currentBurst = 0;
+                cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
+                lastProcessId = -1;
+                currentBurst = 0;
             }
-            
-            currentTime++;
+        
+            int nextArrival = -1;
+            for (int i = 0; i < n; i++) {
+                if (!procs[i].isCompleted && procs[i].arrivalTime > currentTime) {
+                    if (nextArrival == -1 || procs[i].arrivalTime < nextArrival) {
+                        nextArrival = procs[i].arrivalTime;
+                    }
+                }
+            }
+        
+            if (nextArrival != -1) {
+                currentTime = nextArrival;
+            } else {
+                currentTime++;
+            }
+        
             if (currentBurst == 0) {
                 startBlockTime = currentTime;
             }            
         }
-    
     }
 
    printOutput(procs, currentTime);
