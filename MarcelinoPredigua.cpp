@@ -512,7 +512,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
         // Run the process once it is found
         if (currentIdx != -1) {
             
-            // NEW: Context switch check to print merged blocks ---
+            // NEW: Context switch check to print merged blocks
             if (lastProcessId != -1 && procs[currentIdx].id != lastProcessId) {
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                 startBlockTime = currentTime;
@@ -532,13 +532,13 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
             currentTime += runTime;
             procs[currentIdx].remainingTime -= runTime;
             
-            // NEW: Accumulate the burst time instead of printing immediately ---
+            // NEW: Accumulate the burst time instead of printing immediately
             currentBurst += runTime;
 
             // Check if the process is finished
             if (procs[currentIdx].remainingTime == 0) {
                 
-                // --- ADDED: Print the finalized block with the 'X' ---
+                // NEW: Print the finalized block with the 'X'
                 cout << startBlockTime << " " << procs[currentIdx].id << " " << currentBurst << "X" << endl;
                 
                 procs[currentIdx].finishTime = currentTime;
@@ -549,7 +549,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
                 procs[currentIdx].waitingTime = procs[currentIdx].turnaroundTime - procs[currentIdx].burstTime;
                 procs[currentIdx].responseTime = procs[currentIdx].startTime - procs[currentIdx].arrivalTime;
                 
-                // NEW: Reset tracking variables ---
+                // NEW: Reset tracking variables
                 lastProcessId = -1; 
                 startBlockTime = currentTime;
                 currentBurst = 0;
@@ -559,7 +559,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
                 preemptedQueue.push(currentIdx);
             }
         } else {
-            // NEW: Close out block if CPU goes idle ---
+            // NEW: Close out block if CPU goes idle
             if (lastProcessId != -1) {
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                 lastProcessId = -1;
@@ -582,7 +582,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
                 currentTime++;
             }
             
-            // NEW Sync block start time to account for the gap due to idle ---
+            // NEW Sync block start time to account for the gap due to idle
             if (currentBurst == 0) {
                 startBlockTime = currentTime;
             }
