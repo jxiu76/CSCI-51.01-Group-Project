@@ -487,7 +487,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
 
     queue<int> preemptedQueue;
 
-    // NEW: Tracking variables to merge consecutive blocks ---
+    // NEW: Tracking variables to merge consecutive blocks 
     int lastProcessId = -1;
     int startBlockTime = 0;
     int currentBurst = 0;
