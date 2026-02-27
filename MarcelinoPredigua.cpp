@@ -28,8 +28,9 @@ struct Process {
 // It sorts primarily by arrival time (Ascending), and uses the process id
 // Ascending process id as a tie-breaker if multiple processes arrive at the exact same time.
 void sortProcesses(vector<Process> &procs) {
-    int n = procs.size();
+    int n = procs.size(); // Get the total number of processes in the vector
     
+    // Bubble sort
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
             bool shouldSwap = false;
@@ -48,9 +49,9 @@ void sortProcesses(vector<Process> &procs) {
             
             // Swapping
             if (shouldSwap) {
-                Process temp = procs[j];
-                procs[j] = procs[j+1];
-                procs[j+1] = temp;
+                Process temp = procs[j];  // Store current process temporarily
+                procs[j] = procs[j+1]; // Move the next process to the current
+                procs[j+1] = temp; // Put stored process into the next
             }
         }
     }
@@ -67,7 +68,7 @@ void printOutput(vector<Process> procs, int currentTime) {
     double totalWait = 0, totalTurnaround = 0, totalResponse = 0;
     int totalBurst = 0;
     
-    // Re-sort the process by ID so the final output list is in order
+    // Bubble sort re-sort the process by ID so the final output list is in order
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
             if (procs[j].id > procs[j+1].id) {
@@ -88,6 +89,7 @@ void printOutput(vector<Process> procs, int currentTime) {
     cout << "Total CPU burst time: " << totalBurst << "ns" << endl;
 
     // Ternary operator to prevent division by 0
+    // If currentTime is > 0, do the math, otherwise 0.0
     double utilization = (currentTime > 0) ? ((double)totalBurst / currentTime) * 100.0 : 0.0; 
     cout << "CPU Utilization: " << utilization << "%" << endl; 
 
@@ -110,16 +112,22 @@ void printOutput(vector<Process> procs, int currentTime) {
 
 // First Come First Serve
 void fcfs(vector<Process> procs, int testCaseNum) {
+    // Sort process by arrival time
+    // In FCFS, the ready queue is ordered by which arrives first
     sortProcesses(procs);
+
+    // Header
     cout << testCaseNum << " FCFS" << endl;
     int currentTime = 0;
     
+    // Iterate through the sorted queue 
     for (int i = 0; i < procs.size(); i++) {
         // If the CPU is idle, jump time forward
         if (currentTime < procs[i].arrivalTime) {
             currentTime = procs[i].arrivalTime;
         }
         
+        // Simulate execution
         procs[i].startTime = currentTime;
         cout << currentTime << " " << procs[i].id << " " << procs[i].burstTime << "X" << endl;
         
@@ -138,15 +146,16 @@ void fcfs(vector<Process> procs, int testCaseNum) {
 
 // Shortest Job First
 void sjf(vector<Process> procs, int testCaseNum) {
+    // Sort by chronological order
     sortProcesses(procs);
     cout << testCaseNum << " SJF" << endl;
 
-    int currentTime = 0;
-    int completedCount = 0;
-    int n = procs.size();
+    int currentTime = 0; // The clock
+    int completedCount = 0; // Number of processes completed
+    int n = procs.size(); // Total number of processes
 
     while (completedCount < n) {
-        int shortestIdx = -1;
+        int shortestIdx = -1; // // Index of the process we will choose to run next
         
         // Scan the ready queue for process that have arrived and aren't done
         for (int i = 0; i < n; i++) {
@@ -177,13 +186,15 @@ void sjf(vector<Process> procs, int testCaseNum) {
             }
         }
 
-        // If a process was found in the ready queue
+        // If a valid process is found in the ready queue, execute
         if (shortestIdx != -1) {
-            procs[shortestIdx].startTime = currentTime;
+            procs[shortestIdx].startTime = currentTime; // Exact moment it gets to the CPU
             cout << currentTime << " " << procs[shortestIdx].id << " " << procs[shortestIdx].burstTime << "X" << endl;
 
-            // Burst
+            // Fast-forward the clock by the entire burst time required by the process
             currentTime = currentTime + procs[shortestIdx].burstTime;
+
+            // Mark the process as complete so it is ignored in future queue scans
             procs[shortestIdx].finishTime = currentTime;
             procs[shortestIdx].isCompleted = true;
             completedCount++;
@@ -219,21 +230,23 @@ void srtf(vector<Process> procs, int testCaseNum) {
     sortProcesses(procs);
     cout << testCaseNum << " SRTF" << endl;
 
-    int currentTime = 0;
+    int currentTime = 0; 
     int completedCount = 0;
     int n = procs.size();
 
-    int lastProcessId = -1;
-    int startBlockTime = 0;
-    int currentBurst = 0;
+    int lastProcessId = -1; // process that was just running
+    int startBlockTime = 0; // The specific nanosecond the current process started its block
+    int currentBurst = 0; // How long the current process has been running in this block
 
     // Simulate time nanosecond by nanosecond to check for preemptions
     while (completedCount < n) {
         int shortestIdx = -1;
         
-        // Scan the ready queue for the process with the shortest remaining time 
+        // Scan the ready queue for the process that have arrived and with the shortest remaining time 
         for (int i = 0; i < n; i++) {
             if (procs[i].arrivalTime <= currentTime && !procs[i].isCompleted) {
+
+                // If this is the first valid process found, hold temporarily
                 if (shortestIdx == -1) {
                     shortestIdx = i;
                 } 
@@ -242,11 +255,11 @@ void srtf(vector<Process> procs, int testCaseNum) {
                     if (procs[i].remainingTime < procs[shortestIdx].remainingTime) {
                         shortestIdx = i;
                     }
-                    // Tie breakers with arrival time and process ID
+                    // Tie breakers with arrival time
                     else if (procs[i].remainingTime == procs[shortestIdx].remainingTime) {
                         if (procs[i].arrivalTime < procs[shortestIdx].arrivalTime) {
                             shortestIdx = i;
-                        } 
+                        } // Tie breaker with lower process id
                         else if (procs[i].arrivalTime == procs[shortestIdx].arrivalTime) {
                             if (procs[i].id < procs[shortestIdx].id) {
                                 shortestIdx = i;
@@ -257,14 +270,23 @@ void srtf(vector<Process> procs, int testCaseNum) {
             }
         }
 
+        // Execution block
+
         if (shortestIdx != -1) {
             // Context switch
+            // If the CPU was running a different process in the previous nanosecond,
+            // a preemption has occurred. We must "close out" the old block
             if (lastProcessId != -1 && procs[shortestIdx].id != lastProcessId) {
+                // Print the previous process's block. Notice there is NO 'X' here 
+                // because the process was preempted, not completed.
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
+
+                // Reset block tracking variables for the new process taking over
                 startBlockTime = currentTime;
                 currentBurst = 0;
             }
 
+            // Record the current process as the one actively running
             lastProcessId = procs[shortestIdx].id;
 
             // Only log the start time the very first time the process gets the CPU
@@ -277,15 +299,19 @@ void srtf(vector<Process> procs, int testCaseNum) {
             currentBurst++;
             currentTime++;
 
-            // Check if process finished its total burst
+            // Check if process finished its total burst 
             if (procs[shortestIdx].remainingTime == 0) {
                 procs[shortestIdx].finishTime = currentTime;
                 procs[shortestIdx].isCompleted = true;
                 completedCount++;
                 
+                // Print the final block WITH an 'X' to indicate completion
                 cout << startBlockTime << " " << procs[shortestIdx].id << " " << currentBurst << "X" << endl;
                 
                 // Calculate output
+                // Turnaround: Total time in system (Finish - Arrival)
+                // Waiting: In preemptive algorithms, Wait = Turnaround - Burst
+                // Response: Time to first execution (Start - Arrival)
                 procs[shortestIdx].turnaroundTime = procs[shortestIdx].finishTime - procs[shortestIdx].arrivalTime;
                 procs[shortestIdx].waitingTime = procs[shortestIdx].turnaroundTime - procs[shortestIdx].burstTime;
                 procs[shortestIdx].responseTime = procs[shortestIdx].startTime - procs[shortestIdx].arrivalTime;
@@ -297,6 +323,7 @@ void srtf(vector<Process> procs, int testCaseNum) {
                 }
             } else {
             // If CPU is idle
+            // // If a process just finished but no new ones have arrived yet, close out its block
             if (lastProcessId != -1) {
                  cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                  lastProcessId = -1;
@@ -311,7 +338,7 @@ void srtf(vector<Process> procs, int testCaseNum) {
                     }
                 }
             }
-            
+            // Time jump
             if (nextArrival != -1) {
                 currentTime = nextArrival;
             } else {
@@ -341,6 +368,7 @@ void p(vector<Process> procs, int testCaseNum) {
     int startBlockTime = 0;
     int currentBurst = 0;
 
+    // Because Priority here is preemptive, we evaluate the queue every single nanosecond.
     while (completedCount < n) {
         int highestPriorityIdx = -1;
 
@@ -353,10 +381,12 @@ void p(vector<Process> procs, int testCaseNum) {
                     // Lower nice level, higher priority
                     if (procs[i].niceLevel < procs[highestPriorityIdx].niceLevel) {
                         highestPriorityIdx = i;
+
                     // Tie-break 1: Earlier arrival time, higher priority
                     } else if (procs[i].niceLevel == procs[highestPriorityIdx].niceLevel) {
                         if (procs[i].arrivalTime < procs[highestPriorityIdx].arrivalTime) {
                             highestPriorityIdx = i;
+
                         // Tie-break 2: Lower process index, higher priority 
                         } else if (procs[i].arrivalTime == procs[highestPriorityIdx].arrivalTime) {
                             if (procs[i].id < procs[highestPriorityIdx].id) {
@@ -371,14 +401,18 @@ void p(vector<Process> procs, int testCaseNum) {
         // Context switch check
         if (highestPriorityIdx != -1) {
              // Context switch
+             // If a different process was running in the previous nanosecond, we must preempt it.
             if (lastProcessId != -1 && procs[highestPriorityIdx].id != lastProcessId) {
+
+                // Print the previous process's block WITHOUT an 'X' (it was preempted)
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                 startBlockTime = currentTime;
-                currentBurst = 0;
+                currentBurst = 0; // Reset burst counter for the new process
             }
 
             lastProcessId = procs[highestPriorityIdx].id;
 
+            // Record Initial Response Time (only on the very first execution)
             if (procs[highestPriorityIdx].startTime == -1 ) {
                 procs[highestPriorityIdx].startTime = currentTime;
             }
@@ -389,28 +423,34 @@ void p(vector<Process> procs, int testCaseNum) {
             currentTime++;
 
             // Completing the process
+            // Has the process completely finished its required execution time?
             if (procs[highestPriorityIdx].remainingTime == 0) {
                 procs[highestPriorityIdx].finishTime = currentTime;
                 procs[highestPriorityIdx].isCompleted = true;
                 completedCount++;
 
+                // Print the final block WITH an 'X' to indicate completion
                 cout << startBlockTime << " " << procs[highestPriorityIdx].id << " " << currentBurst << "X" << endl;
 
+                // Calculate Metrics (Same math as SRTF since both are preemptive)
                 procs[highestPriorityIdx].turnaroundTime = procs[highestPriorityIdx].finishTime - procs[highestPriorityIdx].arrivalTime;
                 procs[highestPriorityIdx].waitingTime = procs[highestPriorityIdx].turnaroundTime - procs[highestPriorityIdx].burstTime;
                 procs[highestPriorityIdx].responseTime = procs[highestPriorityIdx].startTime - procs[highestPriorityIdx].arrivalTime;
 
+                // Reset block tracking variables
                 lastProcessId = -1; 
                 startBlockTime = currentTime;
                 currentBurst = 0;               
             }
         } else {
+            // Close out the previous block if the CPU is about to go idle
             if (lastProcessId != -1) {
                 cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
                 lastProcessId = -1;
                 currentBurst = 0;
             }
-        
+            
+            // Fast-forward to the exact nanosecond the next process arrives
             int nextArrival = -1;
             for (int i = 0; i < n; i++) {
                 if (!procs[i].isCompleted && procs[i].arrivalTime > currentTime) {
@@ -426,6 +466,7 @@ void p(vector<Process> procs, int testCaseNum) {
                 currentTime++;
             }
         
+            // Sync block start time to account for the idle gap
             if (currentBurst == 0) {
                 startBlockTime = currentTime;
             }            
@@ -435,6 +476,7 @@ void p(vector<Process> procs, int testCaseNum) {
    printOutput(procs, currentTime);
 }
 
+// Round Robin Scheduling (Preemptive with Time Quantum)
 void rr(vector<Process> procs, int testCaseNum, int quantum) {
     sortProcesses(procs);
     cout << testCaseNum << " RR" << endl;
@@ -443,8 +485,12 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
     int completeCount = 0;
     int n = procs.size();
 
-    // Queueing exclusively the preempted processes
     queue<int> preemptedQueue;
+
+    // NEW: Tracking variables to merge consecutive blocks ---
+    int lastProcessId = -1;
+    int startBlockTime = 0;
+    int currentBurst = 0;
 
     while (completeCount < n) {
         int currentIdx = -1;
@@ -453,7 +499,7 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
         for (int i = 0; i < n; i++) {
             if (procs[i].arrivalTime <= currentTime && !procs[i].isCompleted && procs[i].startTime == -1) {
                 currentIdx = i;
-                break; // Since procs is sorted, this guarantees the earliest arrival
+                break; 
             }
         }
 
@@ -465,6 +511,16 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
 
         // Run the process once it is found
         if (currentIdx != -1) {
+            
+            // NEW: Context switch check to print merged blocks ---
+            if (lastProcessId != -1 && procs[currentIdx].id != lastProcessId) {
+                cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
+                startBlockTime = currentTime;
+                currentBurst = 0;
+            }
+
+            lastProcessId = procs[currentIdx].id;
+
             // Record the start time
             if (procs[currentIdx].startTime == -1) {
                 procs[currentIdx].startTime = currentTime;
@@ -472,17 +528,19 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
 
             // Processes can only run for their time slice
             int runTime = min(procs[currentIdx].remainingTime, quantum);
-            int startBlockTime = currentTime;
 
             currentTime += runTime;
             procs[currentIdx].remainingTime -= runTime;
-
-            // Thhis prints the execution block
-            cout << startBlockTime << " " << procs[currentIdx].id << " " << runTime;
+            
+            // NEW: Accumulate the burst time instead of printing immediately ---
+            currentBurst += runTime;
 
             // Check if the process is finished
             if (procs[currentIdx].remainingTime == 0) {
-                cout << "X" << endl;
+                
+                // --- ADDED: Print the finalized block with the 'X' ---
+                cout << startBlockTime << " " << procs[currentIdx].id << " " << currentBurst << "X" << endl;
+                
                 procs[currentIdx].finishTime = currentTime;
                 procs[currentIdx].isCompleted = true;
                 completeCount++;
@@ -490,13 +548,24 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
                 procs[currentIdx].turnaroundTime = procs[currentIdx].finishTime - procs[currentIdx].arrivalTime;
                 procs[currentIdx].waitingTime = procs[currentIdx].turnaroundTime - procs[currentIdx].burstTime;
                 procs[currentIdx].responseTime = procs[currentIdx].startTime - procs[currentIdx].arrivalTime;
+                
+                // NEW: Reset tracking variables ---
+                lastProcessId = -1; 
+                startBlockTime = currentTime;
+                currentBurst = 0;
             } else {
-                cout << endl;
                 // If the process didn't finish, it gets preempted
                 // Move it to the tail end of the queue
                 preemptedQueue.push(currentIdx);
             }
         } else {
+            // NEW: Close out block if CPU goes idle ---
+            if (lastProcessId != -1) {
+                cout << startBlockTime << " " << lastProcessId << " " << currentBurst << endl;
+                lastProcessId = -1;
+                currentBurst = 0;
+            }
+
             // If the CPU is in idle, we need to advance time to the next process
             int nextArrival = -1;
             for (int i = 0; i < n; i++) {
@@ -511,6 +580,11 @@ void rr(vector<Process> procs, int testCaseNum, int quantum) {
                 currentTime = nextArrival;
             } else {
                 currentTime++;
+            }
+            
+            // NEW Sync block start time to account for the gap due to idle ---
+            if (currentBurst == 0) {
+                startBlockTime = currentTime;
             }
         }
     }
